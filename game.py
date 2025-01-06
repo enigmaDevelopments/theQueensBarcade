@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-import subprocess
-import simplejson
 from gameState import gameState
 
 class game :
@@ -54,73 +52,3 @@ class game :
       self.again = messagebox.askquestion('Game end', 'Play again?')
       self.window.destroy()
     return False
-    
-
-      
-
-      
-    
-    
-
-
-def click(loc) :
-  global peiceSelected
-  global peiceLoactions
-  global p1Turn
-  global wallLocations
-  global winCon
-  global ai
-  global moves
-  global again
-  isInLoc = inLoc(loc)
-  if not inLine(loc) :
-    return True
-  elif peiceSelected != -1  :
-    space[ int(peiceLoactions[peiceSelected],base=16)].config(bg="black")
-    if int(peiceLoactions[peiceSelected],base=16) == loc :
-      peiceSelected = -1
-      return True
-    if ((p1Turn and hex(loc)[-1] in peiceLoactions[:2]) or (not p1Turn and hex(loc)[-1] in peiceLoactions[2:])):
-      return True
-    if isInLoc != -1 :
-      peiceLoactions = peiceLoactions[:isInLoc] + "g" + peiceLoactions[isInLoc+1:]
-    space[loc].config(image = peice[int(peiceSelected/2)])
-    space[ int(peiceLoactions[peiceSelected],base=16)].config(image = white)
-    peiceLoactions = peiceLoactions[:peiceSelected] + hex(loc)[-1] + peiceLoactions[peiceSelected+1:]
-    peiceSelected = -1
-  else:
-    if isInLoc != -1 :
-      if (isInLoc < 2 and p1Turn) or (isInLoc >= 2 and not p1Turn) :
-        peiceSelected = isInLoc
-        space[loc].config(bg="green")
-        if not p1Turn and botOn :
-          moves.append(moves[-1])
-      return True
-    if hex(loc)[-1] in wallLocations :
-      return True
-    space[loc].config(image = wall)
-    wallLocations += hex(loc)[-1]
-    for i in range (4) :
-      if surounded(peiceLoactions[i],not i//2):
-        wallLocations += peiceLoactions[i]
-        peiceLoactions = peiceLoactions[:i] + "g" + peiceLoactions[i+1:]
-  p1Lose = peiceLoactions[0] == "g" and peiceLoactions[1] == "g"
-  p2Lose = peiceLoactions[2] == "g" and peiceLoactions[3] == "g"
-  if p1Lose and p2Lose :
-    winCon = "Tie"
-  elif p1Lose :
-    winCon = "P2 win"
-  elif  p2Lose:
-    winCon = "P1 win"
-  if winCon :
-    messagebox.showinfo('Game end', winCon)
-    again = messagebox.askquestion('Game end', 'Play again?')
-    window.destroy()
-    return False
-  p1Turn = not p1Turn
-  while not p1Turn and botOn and click(bot()) : 
-    moves.pop()
-  return False
-
-
-test = game(False)
