@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from gameState import gameState
+from bot import ai
 
 class game :
   def __init__(self, botOn): 
@@ -24,6 +25,8 @@ class game :
       game(botOn)
 
   def click(self,loc):
+    if type(loc) == tuple:
+      return self.click(loc[0]) and self.click(loc[1])
     newState = self.state.move(loc)
     if newState == None :
       return True
@@ -41,16 +44,19 @@ class game :
     self.state = gameState(newState)
     end = self.state.endingBoard()
     winCon = None
-    if end == 1:
+    if end == -1:
       winCon = "P1 win"
-    elif end == 2:
+    elif end == 0:
       winCon = "Tie"
-    elif end == 3:
+    elif end == 1:
       winCon = "P2 win"
-    if end != 0:
+    if end != None:
       messagebox.showinfo('Game end', winCon)
       self.again = messagebox.askquestion('Game end', 'Play again?')
       self.window.destroy()
+
+    if self.botOn and not self.state.p1Turn:
+      self.click(ai(self.state))
     return False
   
-test = game(False)
+test = game(True)
