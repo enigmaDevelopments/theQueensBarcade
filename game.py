@@ -24,7 +24,7 @@ class game :
       game(botOn)
 
   def click(self,loc):
-    newState = self.state.move((loc,))
+    newState = self.state.move(loc)
     if newState == None :
       return True
     elif newState == 0:
@@ -52,3 +52,5 @@ class game :
       self.again = messagebox.askquestion('Game end', 'Play again?')
       self.window.destroy()
     return False
+  
+test = game(False)

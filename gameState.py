@@ -35,7 +35,6 @@ class gameState:
         for i in peices:
             if i == 16:
                 continue  
-            move = [i]
             for j in toAdd:
                 h = i + j
                 cont = True
@@ -45,13 +44,12 @@ class gameState:
                         cont = False
                     elif (self.p1Turn and h in self.peiceLoactions[2:]) or (not self.p1Turn and h in self.peiceLoactions[:2]) :
                         cont2 = False
-                        move.append(h)
+                        moves.append((i,h))
                     elif h in self.peiceLoactions :
                         cont = False
                     else:
-                        move.append(h)
+                        moves.append((i,h))
                     h+=j
-            moves.append(tuple(move))
         return tuple(moves)
     
     def endingBoard (self) :
@@ -59,7 +57,6 @@ class gameState:
         for i in range (4) :
             if self.surounded(self.peiceLoactions[i],not i//2):
                 peicesGone[i//2] += 1
-        print(peicesGone)
         if peicesGone[0] == 2 and peicesGone[1] == 2 :
             return 2
         elif peicesGone[0] == 2 :
@@ -72,22 +69,26 @@ class gameState:
     
     def move(self,loc):
         vaild = self.vaildMoves()
+        if self.peiceSelected != -1:
+            loc = (self.peiceSelected,loc)
+        if loc in vaild :
+            if type(loc) != tuple :
+                return (self.wallLocations | {loc}, tuple(self.peiceLoactions), (), not self.p1Turn)
+            peices = list(self.peiceLoactions)
+            if loc in peices:
+                peices[peices.index(loc[1])] = 16
+            peices[peices.index(self.peiceSelected)]  = loc[1]
+            return (self.wallLocations, tuple(peices), self.prevStates + (self.peiceLoactions,), not self.p1Turn)  
+        if type(loc) == tuple :
+            if loc[0] == loc[1]:
+                return 1
+            return
         for i in vaild :
-            if type(i) == tuple :
-                if self.peiceSelected == i[0] and loc[0] in i[1:] and loc[0] != self.peiceSelected:
-                    return self.peiceMove(loc[0])
-                elif self.peiceSelected == -1 and loc[0] == i[0] :
-                    if len(loc) == 2 and loc[1] in i:
-                        self.peiceSelected = loc[0]
-                        return self.peiceMove(loc[1])
-                    else:
-                        self.peiceSelected = i[0]
-                        return 0
-        if loc[0] in vaild:
-            return (self.wallLocations | {loc[0]}, tuple(self.peiceLoactions), (), not self.p1Turn)
-        if self.peiceSelected == loc[0]:
-            self.peiceSelected = -1
-            return 1
+            if type(i) != tuple :
+                continue
+            if loc == i[0]:
+                self.peiceSelected = i[0]
+                return 0
     
     def peiceMove(self, loc):
         peices = list(self.peiceLoactions)
