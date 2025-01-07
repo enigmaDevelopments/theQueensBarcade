@@ -29,8 +29,12 @@ class gameState:
         return  surrounding <= (self.wallLocations | set(self.peiceLoactions[:2] if isPlayer1 else self.peiceLoactions[2:]))
 
     def vaildMoves(self) :
+        return tuple(set(range(16)) - self.wallLocations-set(self.peiceLoactions)) + self.vaildPeiceMoves(self.p1Turn)
+    
+
+    def vaildPeiceMoves(self,p1Turn):
         moves = []
-        peices = self.peiceLoactions[:2] if self.p1Turn else self.peiceLoactions[2:]
+        peices = self.peiceLoactions[:2] if p1Turn else self.peiceLoactions[2:]
         toAdd = (-5,-4,-3,-1,1,3,4,5)
         for i in peices:
             if i == 16:
@@ -42,7 +46,7 @@ class gameState:
                 while (h >= 0 and h < 16) and cont:
                     if h in self.wallLocations or (((h-j)%4==0 and h%4==3) or ((h-j)%4==3 and (h)%4==0)) or not cont2 :
                         cont = False
-                    elif (self.p1Turn and h in self.peiceLoactions[2:]) or (not self.p1Turn and h in self.peiceLoactions[:2]) :
+                    elif (p1Turn and h in self.peiceLoactions[2:]) or (not p1Turn and h in self.peiceLoactions[:2]) :
                         cont2 = False
                         moves.append((i,h))
                     elif h in self.peiceLoactions :
@@ -50,7 +54,7 @@ class gameState:
                     else:
                         moves.append((i,h))
                     h+=j
-        return tuple(moves) + tuple(set(range(16)) - self.wallLocations-set(self.peiceLoactions))
+        return tuple(moves)
     
     def endingBoard (self) :
         peicesGone = [0,0]
@@ -60,9 +64,9 @@ class gameState:
         if peicesGone[0] == 2 and peicesGone[1] == 2 :
             return 0
         elif peicesGone[0] == 2 :
-            return 1
+            return 100
         elif  peicesGone[1] == 2 :
-            return -1
+            return -100
         elif self.prevStates.count(self.peiceLoactions) == 2 :
             return 0
     

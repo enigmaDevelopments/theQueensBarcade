@@ -37,6 +37,7 @@ class game :
       self.space[loc].config(bg="black")
       return True
     if (self.state.peiceLoactions == newState[1]):
+      print(loc)
       self.space[loc].config(image = self.wall)
     else:
       self.space[self.state.peiceSelected].config(image=self.white,bg="black")
@@ -44,11 +45,11 @@ class game :
     self.state = gameState(newState)
     end = self.state.endingBoard()
     winCon = None
-    if end == -1:
+    if end == -100:
       winCon = "P1 win"
     elif end == 0:
       winCon = "Tie"
-    elif end == 1:
+    elif end == 100:
       winCon = "P2 win"
     if end != None:
       messagebox.showinfo('Game end', winCon)
