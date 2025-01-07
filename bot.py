@@ -17,7 +17,7 @@ def ai(state) :
 def minMax(state, depth, alpha, beta):
   end = state.endingBoard()
   if end != None:
-    return end
+    return end / depth
   if state.p1Turn:
     best = 2
     for node in state.vaildMoves():
