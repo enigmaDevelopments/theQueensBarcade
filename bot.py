@@ -1,18 +1,7 @@
+from concurrent import futures
 from gameState import gameState
 
 
-def ai(state) :
-  alpha = -200
-  best = -200
-  bestMove = None
-  for node in state.vaildMoves():
-    value = minMax(gameState(state.move(node)),1,alpha,2)
-    if value > best:
-      best = value
-      bestMove = node
-      if best > alpha:
-        alpha = best
-  return bestMove
 
 def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
@@ -46,3 +35,25 @@ def minMax(state : gameState, depth, alpha, beta):
           if beta <= alpha:
             break
     return best
+  
+def thread(info):
+  return (minMax(info[0],1,-200,200), info[1])
+  
+def ai(state):
+  best = -200
+  bestMove = None
+  games = ((gameState(state.move(move)),move) for move in state.vaildMoves())
+  with futures.ProcessPoolExecutor() as executer:
+    values = [executer.submit(thread, node) for node in games]
+    for future in futures.as_completed(values):
+      value = future.result()
+      if value[0] > best:
+        best = value[0]
+        bestMove = value[1]
+        if bestMove == 100 :
+          executer.shutdown(wait=False, cancel_futures=True)
+  return bestMove 
+
+if __name__ == '__main__':
+
+  print(ai(gameState((set(),(13,14,0,3),(),False))))

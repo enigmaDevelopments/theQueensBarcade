@@ -1,3 +1,4 @@
+from threading import Thread
 import tkinter as tk
 from tkinter import messagebox
 from gameState import gameState
@@ -15,16 +16,17 @@ class game :
     self.botOn = botOn
     self.space = []
     self.again = None
+    self.processing = False
     for i in range (16):
       self.space.append(tk.Button(self.window,image=self.white,height=32,width=32,bd=2,bg="black",relief='flat',highlightthickness=0,command=lambda num=i :self.click(num)))
       self.space[i].grid(row=i//4,column=i%4)
     for x in [13,14,0,3] :
       self.space[x].config(image = self.peice[int(((x+6)**-1)*10)])
     tk.mainloop()
-    if self.again == "yes":
-      game(botOn)
 
   def click(self,loc):
+    if self.processing :
+      return False
     if type(loc) == tuple:
       return self.click(loc[0]) and self.click(loc[1])
     newState = self.state.move(loc)
@@ -37,7 +39,6 @@ class game :
       self.space[loc].config(bg="black")
       return True
     if (self.state.peiceLoactions == newState[1]):
-      print(loc)
       self.space[loc].config(image = self.wall)
     else:
       self.space[self.state.peiceSelected].config(image=self.white,bg="black")
@@ -57,7 +58,13 @@ class game :
       self.window.destroy()
 
     if self.botOn and not self.state.p1Turn:
-      self.click(ai(self.state))
+      self.processing = True
+      Thread(target=self.process).start()
     return False
   
-test = game(True)
+  def process(self):
+    move = ai(self.state)
+    self.processing = False
+    self.click(move)
+if __name__ == "__main__":
+  test = game(True)
