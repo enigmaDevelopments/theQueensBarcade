@@ -8,12 +8,8 @@ def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
   if end != None:
     return end
-  if depth == 5:
-    p1 = {i[1] for i in state.vaildPeiceMoves(True)}
-    p2 = {i[1] for i in state.vaildPeiceMoves(False)}
-    p12 = p1 - p2
-    p22 = p2 - p1
-    return len(p22)-len(p12)
+  if depth == 8:
+    return state.score()
   if state.p1Turn:
     best = 200
     for node in state.vaildMoves():
@@ -51,10 +47,8 @@ def ai(state):
       if value[0] > best:
         best = value[0]
         bestMove = value[1]
-        if bestMove == 100 :
-          executer.shutdown(wait=False, cancel_futures=True)
   return bestMove 
 
 if __name__ == '__main__':
 
-  print(ai(gameState((set(),(13,14,0,3),(),False))))
+  print(ai(gameState((set(),(13,14,0,3),False))))

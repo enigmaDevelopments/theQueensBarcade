@@ -12,7 +12,7 @@ class game :
     self.peice = (tk.PhotoImage(file="queen p1.png"),tk.PhotoImage(file="queen p2.png"))
     self.white = tk.PhotoImage(file="white.png")
     self.wall = tk.PhotoImage(file="wall.png")
-    self.state = gameState((set(),(13,14,0,3),(),True))
+    self.state = gameState((set(),(13,14,0,3),True))
     self.botOn = botOn
     self.space = []
     self.again = None
