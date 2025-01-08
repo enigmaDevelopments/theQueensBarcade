@@ -1,8 +1,9 @@
+from functools import lru_cache
 from concurrent import futures
 from gameState import gameState
 
 
-
+@lru_cache
 def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
   if end != None:
