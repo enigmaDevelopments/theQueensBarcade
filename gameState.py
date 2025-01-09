@@ -1,5 +1,5 @@
 class gameState:
-    def __init__(self, info):
+    def __init__(self, info: tuple) :
         self.wallLocations = info[0]
         self.peiceLoactions = info[1]
         self.p1Turn = info[2]
@@ -63,9 +63,11 @@ class gameState:
                     locs.add(h)
         p1 = peices[0] - (set(self.peiceLoactions[:2]) | self.wallLocations)
         p2 = peices[1] - (set(self.peiceLoactions[2:]) | self.wallLocations)
-        p1Score = len(p1-p2)
-        p2Score = len(p2-p1)
-        return p2Score - p1Score
+        p1Score = len(p1-p2) + self.p1Turn / 2
+        p2Score = len(p2-p1) + (not self.p1Turn) / 2
+        if max (p1Score,p2Score) < min(p1Score,p2Score) + len(p1 & p2):
+            return 0
+        return p2Score - p1Score 
         
     
     def endingBoard (self) :
@@ -76,9 +78,9 @@ class gameState:
         if peicesGone[0] == 2 and peicesGone[1] == 2 :
             return 0
         elif peicesGone[0] == 2 :
-            return 100
+            return 1000000
         elif  peicesGone[1] == 2 :
-            return -100
+            return -1000000
     
     def move(self,loc):
         vaild = self.vaildMoves()

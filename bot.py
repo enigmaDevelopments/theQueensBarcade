@@ -1,19 +1,23 @@
 from functools import lru_cache
 from concurrent import futures
 from gameState import gameState
+from random import choice
 
 
 @lru_cache
 def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
+  if end == 0:
+    return 0
   if end != None:
-    return end
+    return end + ((depth*1000) + state.score() if end < 0 else -depth)
   if depth == 8:
     return state.score()
   if state.p1Turn:
-    best = 200
+    best = 2000000
     for node in state.vaildMoves():
-      value = minMax(gameState(state.move(node)),depth+1,alpha,beta)
+      nextState = gameState(state.move(node))
+      value = minMax(nextState,depth+1,alpha,beta)
       if value < best:
         best = value
         if best < beta:
@@ -22,9 +26,10 @@ def minMax(state : gameState, depth, alpha, beta):
             break
     return best
   else:
-    best = -200
+    best = -2000000
     for node in state.vaildMoves():
-      value = minMax(gameState(state.move(node)),depth+1,alpha,beta)
+      nextState = gameState(state.move(node))
+      value = minMax(nextState,depth+1,alpha,beta)
       if value > best:
         best = value
         if best > alpha:
@@ -34,21 +39,26 @@ def minMax(state : gameState, depth, alpha, beta):
     return best
   
 def thread(info):
-  return (minMax(info[0],1,-200,200), info[1])
+  data = (minMax(info[0],1,-2000000,2000000), info[1])
+  return data
   
 def ai(state):
-  best = -200
+  best = -2000000
   bestMove = None
   games = ((gameState(state.move(move)),move) for move in state.vaildMoves())
   with futures.ProcessPoolExecutor() as executer:
     values = [executer.submit(thread, node) for node in games]
     for future in futures.as_completed(values):
       value = future.result()
+      print(value)
       if value[0] > best:
         best = value[0]
-        bestMove = value[1]
-  return bestMove 
+        bestMove = [value[1]]
+      elif value[0] == best:
+        bestMove.append(value[1])
+  print(best,bestMove)
+  return choice(bestMove) 
 
 if __name__ == '__main__':
 
-  print(ai(gameState((set(),(13,14,0,3),False))))
+  print(ai(gameState(({8, 9, 10, 6}, (0, 14, 3, 16), False))))

@@ -5,8 +5,8 @@ from gameState import gameState
 from bot import ai
 
 class game :
-  def __init__(self, botOn): 
-    self.window = tk.Tk()
+  def __init__(self, botOn, window): 
+    self.window = window
     self.window.title("Queens barcade")
     self.window.geometry("152x152")
     self.peice = (tk.PhotoImage(file="queen p1.png"),tk.PhotoImage(file="queen p2.png"))
@@ -15,8 +15,8 @@ class game :
     self.state = gameState((set(),(13,14,0,3),True))
     self.botOn = botOn
     self.space = []
-    self.again = None
     self.processing = False
+    self.thread = None
     for i in range (16):
       self.space.append(tk.Button(self.window,image=self.white,height=32,width=32,bd=2,bg="black",relief='flat',highlightthickness=0,command=lambda num=i :self.click(num)))
       self.space[i].grid(row=i//4,column=i%4)
@@ -45,26 +45,30 @@ class game :
       self.space[loc].config(image = self.peice[0 if self.state.p1Turn else 1])
     self.state = gameState(newState)
     end = self.state.endingBoard()
-    winCon = None
-    if end == -100:
-      winCon = "P1 win"
-    elif end == 0:
-      winCon = "Tie"
-    elif end == 100:
-      winCon = "P2 win"
-    if end != None:
-      messagebox.showinfo('Game end', winCon)
-      self.again = messagebox.askquestion('Game end', 'Play again?')
-      self.window.destroy()
 
+    if end == -1000000:
+      messagebox.showinfo('Game end',"P1 win")
+    elif end == 0:
+      messagebox.showinfo('Game end',"Tie")
+    elif end == 1000000:
+      messagebox.showinfo('Game end', "P2 win")
+    if end != None:
+      self.window.quit()
     if self.botOn and not self.state.p1Turn:
       self.processing = True
-      Thread(target=self.process).start()
+      self.thread = Thread(target=self.process).start()
     return False
   
   def process(self):
     move = ai(self.state)
     self.processing = False
     self.click(move)
+
+
 if __name__ == "__main__":
-  test = game(True)
+  window = tk.Tk()
+  again = "yes"
+  while (again == "yes"):
+    game(True,window)
+    again = messagebox.askquestion('Game end', 'Play again?')
+  window.destroy()
