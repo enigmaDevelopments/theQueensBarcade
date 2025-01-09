@@ -8,7 +8,7 @@ from random import choice
 def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
   if end == 0:
-    return 0
+    return 1/(depth+2)
   if end != None:
     return end + ((depth*1000) + state.score() if end < 0 else -depth)
   if depth == 8:

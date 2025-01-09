@@ -65,9 +65,10 @@ class gameState:
         p2 = peices[1] - (set(self.peiceLoactions[2:]) | self.wallLocations)
         p1Score = len(p1-p2) + self.p1Turn / 2
         p2Score = len(p2-p1) + (not self.p1Turn) / 2
+        score = p2Score - p1Score
         if max (p1Score,p2Score) < min(p1Score,p2Score) + len(p1 & p2):
-            return 0
-        return p2Score - p1Score 
+            return score / 10000
+        return  score
         
     
     def endingBoard (self) :
