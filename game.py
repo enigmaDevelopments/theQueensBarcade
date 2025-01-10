@@ -44,8 +44,8 @@ class game :
       self.space[self.state.peiceSelected].config(image=self.white,bg="black")
       self.space[loc].config(image = self.peice[0 if self.state.p1Turn else 1])
     self.state = gameState(newState)
-    end = self.state.endingBoard()
 
+    end = self.state.endingBoard()
     if end == -1000000:
       messagebox.showinfo('Game end',"P1 win")
     elif end == 0:
@@ -53,6 +53,8 @@ class game :
     elif end == 1000000:
       messagebox.showinfo('Game end', "P2 win")
     if end != None:
+      for space in self.space:
+        space.destroy()
       self.window.quit()
     if self.botOn and not self.state.p1Turn:
       self.processing = True
