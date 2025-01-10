@@ -1,6 +1,6 @@
 import tkinter as tk
-import subprocess
 from game import game
+from multiprocessing import freeze_support
 
 
 
@@ -58,6 +58,7 @@ def elements():
 
 
 if __name__ == "__main__":
+  freeze_support()
   window = tk.Tk()
   elements()
   tk.mainloop()

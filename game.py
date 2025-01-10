@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 from gameState import gameState
 from bot import ai
+from multiprocessing import freeze_support
 
 class game :
   def __init__(self, botOn, window): 
@@ -66,11 +67,5 @@ class game :
     self.processing = False
     self.click(move)
 
-
 if __name__ == "__main__":
-  window = tk.Tk()
-  again = "yes"
-  while (again == "yes"):
-    game(True,window)
-    again = messagebox.askquestion('Game end', 'Play again?')
-  window.destroy()
+  freeze_support()

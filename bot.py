@@ -2,6 +2,7 @@ from functools import lru_cache
 from concurrent import futures
 from gameState import gameState
 from random import choice
+from multiprocessing import freeze_support
 
 
 @lru_cache
@@ -50,15 +51,12 @@ def ai(state):
     values = [executer.submit(thread, node) for node in games]
     for future in futures.as_completed(values):
       value = future.result()
-      print(value)
       if value[0] > best:
         best = value[0]
         bestMove = [value[1]]
       elif value[0] == best:
         bestMove.append(value[1])
-  print(best,bestMove)
   return choice(bestMove) 
 
-if __name__ == '__main__':
-
-  print(ai(gameState(({8, 9, 10, 6}, (0, 14, 3, 16), False))))
+if __name__ == "__main__":
+  freeze_support()
