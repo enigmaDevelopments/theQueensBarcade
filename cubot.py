@@ -43,104 +43,132 @@ edges = cp.array((
 ))
 
 surrounding = cp.array((
-    (((-.5,1,0,0),
-     (1,1,0,0),
-     (0,0,0,0),
-     (0,0,0,0)),
+    ((False,True,False,False),
+     (True,True,False,False),
+     (False,False,False,False),
+     (False,False,False,False)),
 
-    ((1,-.5,1,0),
-     (1,1,1,0),
-     (0,0,0,0),
-     (0,0,0,0)),
+    ((True,False,True,False),
+     (True,True,True,False),
+     (False,False,False,False),
+     (False,False,False,False)),
 
-    ((0,1,-.5,1),
-     (0,1,1,1),
-     (0,0,0,0),
-     (0,0,0,0)),
+    ((False,True,False,True),
+     (False,True,True,True),
+     (False,False,False,False),
+     (False,False,False,False)),
 
-    ((0,0,1,-.5),
-     (0,0,1,1),
-     (0,0,0,0),
-     (0,0,0,0))),
-
-
-    (((1,1,0,0),
-     (-.5,1,0,0),
-     (1,1,0,0),
-     (0,0,0,0)),
-
-    ((1,1,1,0),
-     (1,-.5,1,0),
-     (1,1,1,0),
-     (0,0,0,0)),
-
-    ((0,1,1,1),
-     (0,1,-.5,1),
-     (0,1,1,1),
-     (0,0,0,0)),
-
-    ((0,0,1,1),
-     (0,0,1,-.5),
-     (0,0,1,1),
-     (0,0,0,0))),
+    ((False,False,True,False),
+     (False,False,True,True),
+     (False,False,False,False),
+     (False,False,False,False)),
 
 
-    (((0,0,0,0),
-     (1,1,0,0),
-     (-.5,1,0,0),
-     (1,1,0,0)),
+    ((True,True,False,False),
+     (False,True,False,False),
+     (True,True,False,False),
+     (False,False,False,False)),
+
+    ((True,True,True,False),
+     (True,False,True,False),
+     (True,True,True,False),
+     (False,False,False,False)),
+
+    ((False,True,True,True),
+     (False,True,False,True),
+     (False,True,True,True),
+     (False,False,False,False)),
+
+    ((False,False,True,True),
+     (False,False,True,False),
+     (False,False,True,True),
+     (False,False,False,False)),
+
+
+    ((False,False,False,False),
+     (True,True,False,False),
+     (False,True,False,False),
+     (True,True,False,False)),
       
-    ((0,0,0,0),
-     (1,1,1,0),
-     (1,-.5,1,0),
-     (1,1,1,0)),
+    ((False,False,False,False),
+     (True,True,True,False),
+     (True,False,True,False),
+     (True,True,True,False)),
 
-    ((0,0,0,0),
-     (0,1,1,1),
-     (0,1,-.5,1),
-     (0,1,1,1)),
+    ((False,False,False,False),
+     (False,True,True,True),
+     (False,True,False,True),
+     (False,True,True,True)),
 
-    ((0,0,0,0),
-     (0,0,1,1),
-     (0,0,1,-.5),
-     (0,0,1,1))),
+    ((False,False,False,False),
+     (False,False,True,True),
+     (False,False,True,False),
+     (False,False,True,True)),
 
 
-    (((0,0,0,0),
-     (0,0,0,0),
-     (1,1,0,0),
-     (-.5,1,0,0)),
+    ((False,False,False,False),
+     (False,False,False,False),
+     (True,True,False,False),
+     (False,True,False,False)),
 
-    ((0,0,0,0),
-     (0,0,0,0),
-     (1,1,1,0),
-     (1,-.5,1,0)),
+    ((False,False,False,False),
+     (False,False,False,False),
+     (True,True,True,False),
+     (True,False,True,False)),
 
-    ((0,0,0,0),
-     (0,0,0,0),
-     (0,1,1,1),
-     (0,1,-.5,1)),
+    ((False,False,False,False),
+     (False,False,False,False),
+     (False,True,True,True),
+     (False,True,False,True)),
 
-    ((0,0,0,0),
-     (0,0,0,0),
-     (0,0,1,1),
-     (0,0,1,-.5)))
+    ((False,False,False,False),
+     (False,False,False,False),
+     (False,False,True,True),
+     (False,False,True,False)),
+
+
+     ((False,False,False,False),
+     (False,False,False,False),
+     (False,False,False,False),
+     (False,False,False,False))
+
 ))
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
-def score(walls: cp.ndarray, pieces: cp.ndarray):
-    return 0
+def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray):
+    global surrounding
+    shape = cp.shape(p1)
+    p1Shaped = cp.reshape(p1, (-1,16))
+    p2Shaped = cp.reshape(p2, (-1,16))
+    p3Shaped = cp.reshape(p3, (-1,16))
+    p4Shaped = cp.reshape(p4, (-1,16))
+
+    ps = (p1Shaped,p2Shaped,p3Shaped,p4Shaped)
+    nears = []
+    for p in ps:
+        idx = cp.argwhere(p).T
+        merged = cp.ndarray(shape[0],cp.int8)
+        merged[idx[0]] = idx[1]
+        merged[cp.setdiff1d(cp.arange(shape[0]),idx[0],True)] = 16
+        nears.append(surrounding[merged])
+
+    player1 = (nears[0]|nears[1]) & ~(p1|p2) & walls
+    player2 = (nears[2]|nears[3]) & ~(p3|p4) & walls
+
+    
+
+
 
 def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4: cp.ndarray, p1Turn: bool):
     global edges
     global directions
 
     if p1Turn:
-        player = (p1 * 2) + (p2 * 4)
+        player = (p1 * cp.int8(2)) + (p2 * cp.int8(4))
         wall = cp.array((walls & ~(p3|p4), walls & ~(p1|p2|p3|p4)))
     else:
-        player = (p3 * 2) + (p4 * 4)
+        player = (p3 * cp.int8(2)) + (p4 * cp.int8(4))
         wall = cp.array((walls & ~(p1|p2), walls & ~(p1|p2|p3|p4)))
 
     moves = cp.zeros(cp.shape(walls),cp.int8)
@@ -153,21 +181,24 @@ def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4:
             pos = cp.roll(pos,directions[i])
             moves += pos * block[0]
             pos *= block[1]
-    return cp.array((wall[1],moves & 2, moves & 4),cp.bool_)
+    return cp.array((wall[1],moves&2, moves&4),cp.bool_)
 
 walls = cp.array(((False,True,True,True),(True,True,True,True),(True,False,True,True),(True,True,True,True)))
 p1 = cp.array(((False,False,False,False),(False,False,False,False),(False,False,False,False),(True,False,False,False)))
 p2 = cp.array(((False,False,False,False),(False,False,False,False),(False,False,False,False),(False,False,False,True)))
 p3 = cp.array(((False,True,False,False),(False,False,False,False),(False,False,False,False),(False,False,False,False)))
 p4 = cp.array(((False,False,True,False),(False,False,False,False),(False,False,False,False),(False,False,False,False)))
-pieces = cp.array((((0,1),(0,2)),((3,0),(3,3))))
 
-walls = cp.array((walls,walls))
-p1 = cp.array((p1,p1))
-p2 = cp.array((p2,p2))
-p3 = cp.array((p3,p3))
-p4 = cp.array((p4,p4))
-pieces = cp.array((pieces,pieces))
+walls = cp.array((walls,walls,walls,walls))
+p1 = cp.array((p1,p1,p1,p1))
+p2 = cp.array((p2,p2,p2,p2))
+p3 = cp.array((p3,p3,p3,p3))
+p4 = cp.array((p4,p4,p4,p4))
 
-moves = getMoves(walls,p1,p2,p3,p4, True)
-print (moves)
+
+
+moves = getMoves(walls,p1,p2,p3,p4, False)
+#print (moves)
+
+s = score(walls,p1,p2,p3,p4)
+#print(s)
