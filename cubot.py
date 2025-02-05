@@ -1,152 +1,146 @@
 import cupy as cp
 
 edges = cp.array((
-    ((True,True,True,False),
-     (True,True,True,False),
-     (True,True,True,False),
-     (False,False,False,False)),
+    (True,True,True,False,
+     True,True,True,False,
+     True,True,True,False,
+     False,False,False,False),
 
-    ((True,True,True,True),
-     (True,True,True,True),
-     (True,True,True,True),
-     (False,False,False,False)),
+    (True,True,True,True,
+     True,True,True,True,
+     True,True,True,True,
+     False,False,False,False),
 
-    ((False,True,True,True),
-     (False,True,True,True),
-     (False,True,True,True),
-     (False,False,False,False)),
+    (False,True,True,True,
+     False,True,True,True,
+     False,True,True,True,
+     False,False,False,False),
 
-    ((True,True,True,False),
-     (True,True,True,False),
-     (True,True,True,False),
-     (True,True,True,False)),
+    (True,True,True,False,
+     True,True,True,False,
+     True,True,True,False,
+     True,True,True,False),
      
-    ((False,True,True,True),
-     (False,True,True,True),
-     (False,True,True,True),
-     (False,True,True,True)),
+    (False,True,True,True,
+     False,True,True,True,
+     False,True,True,True,
+     False,True,True,True),
 
-    ((False,False,False,False),
-     (True,True,True,False),
-     (True,True,True,False),
-     (True,True,True,False)),
+    (False,False,False,False,
+     True,True,True,False,
+     True,True,True,False,
+     True,True,True,False),
 
-    ((False,False,False,False),
-     (True,True,True,True),
-     (True,True,True,True),
-     (True,True,True,True)),
+    (False,False,False,False,
+     True,True,True,True,
+     True,True,True,True,
+     True,True,True,True),
 
-    ((False,False,False,False),
-     (False,True,True,True),
-     (False,True,True,True),
-     (False,True,True,True)),
+    (False,False,False,False,
+     False,True,True,True,
+     False,True,True,True,
+     False,True,True,True),
 ))
 
 surrounding = cp.array((
-    ((False,True,False,False),
-     (True,True,False,False),
-     (False,False,False,False),
-     (False,False,False,False)),
+    (False,True,False,False,
+     True,True,False,False,
+     False,False,False,False,
+     False,False,False,False),
 
-    ((True,False,True,False),
-     (True,True,True,False),
-     (False,False,False,False),
-     (False,False,False,False)),
+    (True,False,True,False,
+     True,True,True,False,
+     False,False,False,False,
+     False,False,False,False),
 
-    ((False,True,False,True),
-     (False,True,True,True),
-     (False,False,False,False),
-     (False,False,False,False)),
+    (False,True,False,True,
+     False,True,True,True,
+     False,False,False,False,
+     False,False,False,False),
 
-    ((False,False,True,False),
-     (False,False,True,True),
-     (False,False,False,False),
-     (False,False,False,False)),
-
-
-    ((True,True,False,False),
-     (False,True,False,False),
-     (True,True,False,False),
-     (False,False,False,False)),
-
-    ((True,True,True,False),
-     (True,False,True,False),
-     (True,True,True,False),
-     (False,False,False,False)),
-
-    ((False,True,True,True),
-     (False,True,False,True),
-     (False,True,True,True),
-     (False,False,False,False)),
-
-    ((False,False,True,True),
-     (False,False,True,False),
-     (False,False,True,True),
-     (False,False,False,False)),
+    (False,False,True,False,
+     False,False,True,True,
+     False,False,False,False,
+     False,False,False,False),
 
 
-    ((False,False,False,False),
-     (True,True,False,False),
-     (False,True,False,False),
-     (True,True,False,False)),
+    (True,True,False,False,
+     False,True,False,False,
+     True,True,False,False,
+     False,False,False,False),
+
+    (True,True,True,False,
+     True,False,True,False,
+     True,True,True,False,
+     False,False,False,False),
+
+    (False,True,True,True,
+     False,True,False,True,
+     False,True,True,True,
+     False,False,False,False),
+
+    (False,False,True,True,
+     False,False,True,False,
+     False,False,True,True,
+     False,False,False,False),
+
+
+    (False,False,False,False,
+     True,True,False,False,
+     False,True,False,False,
+     True,True,False,False),
       
-    ((False,False,False,False),
-     (True,True,True,False),
-     (True,False,True,False),
-     (True,True,True,False)),
+    (False,False,False,False,
+     True,True,True,False,
+     True,False,True,False,
+     True,True,True,False),
 
-    ((False,False,False,False),
-     (False,True,True,True),
-     (False,True,False,True),
-     (False,True,True,True)),
+    (False,False,False,False,
+     False,True,True,True,
+     False,True,False,True,
+     False,True,True,True),
 
-    ((False,False,False,False),
-     (False,False,True,True),
-     (False,False,True,False),
-     (False,False,True,True)),
-
-
-    ((False,False,False,False),
-     (False,False,False,False),
-     (True,True,False,False),
-     (False,True,False,False)),
-
-    ((False,False,False,False),
-     (False,False,False,False),
-     (True,True,True,False),
-     (True,False,True,False)),
-
-    ((False,False,False,False),
-     (False,False,False,False),
-     (False,True,True,True),
-     (False,True,False,True)),
-
-    ((False,False,False,False),
-     (False,False,False,False),
-     (False,False,True,True),
-     (False,False,True,False)),
+    (False,False,False,False,
+     False,False,True,True,
+     False,False,True,False,
+     False,False,True,True),
 
 
-     ((False,False,False,False),
-     (False,False,False,False),
-     (False,False,False,False),
-     (False,False,False,False))
+    (False,False,False,False,
+     False,False,False,False,
+     True,True,False,False,
+     False,True,False,False),
+
+    (False,False,False,False,
+     False,False,False,False,
+     True,True,True,False,
+     True,False,True,False),
+
+    (False,False,False,False,
+     False,False,False,False,
+     False,True,True,True,
+     False,True,False,True),
+
+    (False,False,False,False,
+     False,False,False,False,
+     False,False,True,True,
+     False,False,True,False),
+
+
+     (False,False,False,False,
+     False,False,False,False,
+     False,False,False,False,
+     False,False,False,False)
 
 ))
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
-def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray):
+def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn : bool):
     global surrounding
-    shape = cp.shape(p1)
-    p1Shaped = cp.reshape(p1, (-1,16))
-    p2Shaped = cp.reshape(p2, (-1,16))
-    p3Shaped = cp.reshape(p3, (-1,16))
-    p4Shaped = cp.reshape(p4, (-1,16))
-
-    ps = (p1Shaped,p2Shaped,p3Shaped,p4Shaped)
+    shape = p1.shape
     nears = []
-    for p in ps:
+    for p in (p1,p2,p3,p4):
         idx = cp.argwhere(p).T
         merged = cp.ndarray(shape[0],cp.int8)
         merged[idx[0]] = idx[1]
@@ -155,6 +149,12 @@ def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: 
 
     player1 = (nears[0]|nears[1]) & ~(p1|p2) & walls
     player2 = (nears[2]|nears[3]) & ~(p3|p4) & walls
+
+    p1Sum = cp.sum(player1&~player2,1,cp.int8) + (p1Turn * .5)
+    p2Sum = cp.sum(player2&~player1,1,cp.int8) + ((not p1Turn) *.5)
+    bSum = cp.sum(player1&player2,1,cp.int8)
+    total = p2Sum - p1Sum
+    return cp.where(p1Sum == 0, 100, cp.where(p2Sum == 0, -100, cp.where(cp.fabs(total)<bSum,0,total)))
 
     
 
@@ -183,11 +183,11 @@ def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4:
             pos *= block[1]
     return cp.array((wall[1],moves&2, moves&4),cp.bool_)
 
-walls = cp.array(((False,True,True,True),(True,True,True,True),(True,False,True,True),(True,True,True,True)))
-p1 = cp.array(((False,False,False,False),(False,False,False,False),(False,False,False,False),(True,False,False,False)))
-p2 = cp.array(((False,False,False,False),(False,False,False,False),(False,False,False,False),(False,False,False,True)))
-p3 = cp.array(((False,True,False,False),(False,False,False,False),(False,False,False,False),(False,False,False,False)))
-p4 = cp.array(((False,False,True,False),(False,False,False,False),(False,False,False,False),(False,False,False,False)))
+walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
+p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
+p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
+p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
+p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
 
 walls = cp.array((walls,walls,walls,walls))
 p1 = cp.array((p1,p1,p1,p1))
@@ -197,8 +197,9 @@ p4 = cp.array((p4,p4,p4,p4))
 
 
 
-moves = getMoves(walls,p1,p2,p3,p4, False)
-#print (moves)
+moves = getMoves(walls,p1,p2,p3,p4, True)
+moves = cp.reshape(moves,(-1,4,4))
+print (moves)
 
-s = score(walls,p1,p2,p3,p4)
-#print(s)
+s = score(walls,p1,p2,p3,p4,True)
+print(s)
