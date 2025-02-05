@@ -136,7 +136,7 @@ surrounding = cp.array((
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
-def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn : bool):
+def getScore(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn: bool, findEnds: bool = False):
     global surrounding
     shape = p1.shape
     nears = []
@@ -152,9 +152,9 @@ def score(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: 
 
     p1Sum = cp.sum(player1&~player2,1,cp.int8) + (p1Turn * .5)
     p2Sum = cp.sum(player2&~player1,1,cp.int8) + ((not p1Turn) *.5)
-    bSum = cp.sum(player1&player2,1,cp.int8)
     total = p2Sum - p1Sum
-    return cp.where(p1Sum == 0, 100, cp.where(p2Sum == 0, -100, cp.where(cp.fabs(total)<bSum,0,total)))
+
+    return cp.where(p1Sum == 0, 100, cp.where(p2Sum == 0, -100, 0 if findEnds else cp.where(cp.fabs(total)<cp.sum(player1&player2,1,cp.int8),0,total)))
 
     
 
@@ -201,5 +201,5 @@ moves = getMoves(walls,p1,p2,p3,p4, True)
 moves = cp.reshape(moves,(-1,4,4))
 print (moves)
 
-s = score(walls,p1,p2,p3,p4,True)
-print(s)
+score = getScore(walls,p1,p2,p3,p4,True)
+print(score)
