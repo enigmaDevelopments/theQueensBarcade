@@ -136,25 +136,29 @@ surrounding = cp.array((
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
-def getScore(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn: bool, findEnds: bool = False):
+def getScore(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn: bool):
     global surrounding
     shape = p1.shape
     nears = []
     for p in (p1,p2,p3,p4):
         idx = cp.argwhere(p).T
-        merged = cp.ndarray(shape[0],cp.int8)
+        merged = cp.full(shape[0],cp.int8(16))
         merged[idx[0]] = idx[1]
-        merged[cp.setdiff1d(cp.arange(shape[0]),idx[0],True)] = 16
         nears.append(surrounding[merged])
 
     player1 = (nears[0]|nears[1]) & ~(p1|p2) & walls
     player2 = (nears[2]|nears[3]) & ~(p3|p4) & walls
 
-    p1Sum = cp.sum(player1&~player2,1,cp.int8) + (p1Turn * .5)
-    p2Sum = cp.sum(player2&~player1,1,cp.int8) + ((not p1Turn) *.5)
+    p1Sum = cp.sum(player1&~player2,1,cp.float16)
+    p2Sum = cp.sum(player2&~player1,1,cp.float16)
+    p1NotZero = p1Sum.astype(bool)
+    p2NotZero = p2Sum.astype(bool)
+    p1Sum += cp.float16(p1Turn * .5)
+    p2Sum += cp.float16((not p1Turn) *.5)
+    bSum = cp.sum(player1&player2,1,cp.float16)
     total = p2Sum - p1Sum
 
-    return cp.where(p1Sum == 0, 100, cp.where(p2Sum == 0, -100, 0 if findEnds else cp.where(cp.fabs(total)<cp.sum(player1&player2,1,cp.int8),0,total)))
+    return cp.where(p1NotZero, cp.where(p2NotZero, cp.where(cp.fabs(total)<bSum,0,total), -100), cp.where(p2NotZero,100,0))
 
     
 
@@ -201,5 +205,5 @@ moves = getMoves(walls,p1,p2,p3,p4, True)
 moves = cp.reshape(moves,(-1,4,4))
 print (moves)
 
-score = getScore(walls,p1,p2,p3,p4,True)
+score = getScore(walls,p1,p2,p3,p4, True)
 print(score)
