@@ -42,6 +42,13 @@ edges = cp.array((
      False,True,True,True),
 ))
 
+empty = cp.array((
+    False,False,False,False,
+     False,False,False,False,
+     False,False,False,False,
+     False,False,False,False
+))
+
 surrounding = cp.array((
     (False,True,False,False,
      True,True,False,False,
@@ -131,7 +138,6 @@ surrounding = cp.array((
      False,False,False,False,
      False,False,False,False,
      False,False,False,False)
-
 ))
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
@@ -185,7 +191,31 @@ def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4:
             pos = cp.roll(pos,directions[i])
             moves += pos * block[0]
             pos *= block[1]
-    return cp.array((wall[1],moves&2, moves&4),cp.bool_)
+    return cp.array(((moves&2), (moves&4),wall[1]),cp.bool_)
+
+
+def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4: cp.ndarray, moves: cp.ndarray, p1Turn: bool):
+    global empty
+    size = p1.shape[0]
+
+    peiceLoc = cp.argwhere(moves[:2])
+    peiceLoc = peiceLoc[cp.argsort(peiceLoc.T[1])].T
+    inversePeiceLoc = cp.setdiff1d(cp.arange(size),peiceLoc[1])
+    moves[2][inversePeiceLoc] = empty
+    wallLoc = cp.argwhere(moves[2])
+    wallLoc = wallLoc[cp.argsort(wallLoc.T[0])].T
+    tLoc = cp.sort(cp.concatenate((peiceLoc[1],wallLoc[0],inversePeiceLoc)))
+
+    wallAmounts = cp.zeros(size,cp.int_)    if wallLoc.size == 0 else cp.bincount(wallLoc[0],minlength=size)
+    peiceAmounts = cp.zeros(size,cp.int_) if peiceLoc.size == 0 else cp.bincount(peiceLoc[0],minlength=size)
+    noneAmounts = cp.zeros(size,cp.int_) if inversePeiceLoc.size == 0 else cp.bincount(inversePeiceLoc,minlength=size)
+    totalAmounts = wallAmounts + peiceAmounts + noneAmounts
+
+    output = cp.reshape(cp.hstack((walls[tLoc],p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc])),(tLoc.size,5,4,4))
+    print(output)
+    
+
+
 
 walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
 p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
@@ -202,8 +232,10 @@ p4 = cp.array((p4,p4,p4,p4))
 
 
 moves = getMoves(walls,p1,p2,p3,p4, True)
-moves = cp.reshape(moves,(-1,4,4))
+#moves = cp.reshape(moves,(-1,3,4,4))
 print (moves)
 
-score = getScore(walls,p1,p2,p3,p4, True)
-print(score)
+# score = getScore(walls,p1,p2,p3,p4, True)
+# print(score)
+
+makeMoves(walls, p1, p2, p3, p4, moves, True)
