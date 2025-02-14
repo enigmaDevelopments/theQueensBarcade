@@ -206,13 +206,13 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     wallLoc = wallLoc[cp.argsort(wallLoc.T[0])].T
     tLoc = cp.sort(cp.concatenate((peiceLoc[1],wallLoc[0],inversePeiceLoc)))
 
-    output = cp.reshape(cp.hstack((walls[tLoc],p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc])),(tLoc.size,5,16))
-    # print(wallLoc)
+    output = cp.reshape(cp.hstack((p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc],walls[tLoc])),(tLoc.size,5,16))
 
     wallAmounts =  cp.bincount(wallLoc[0],minlength=size)
     peiceAmounts = cp.bincount(peiceLoc[1],minlength=size)
     totalAmounts = wallAmounts + peiceAmounts
-    cp.putmask(totalAmounts,totalAmounts == 0,1)
+    mask = totalAmounts == 0
+    cp.putmask(totalAmounts,mask,1)
 
     idx = cp.cumsum(totalAmounts)
     
@@ -220,16 +220,26 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     wallIdx = idx - wallAmounts
     
     iStart = cp.roll(cp.cumsum(wallAmounts),1)
+    iSize = iStart[0].item()
     iStart[0] = 0
-    iSize = cp.sum(wallAmounts).item()
-    i = cp.ndarray(iSize)
 
     flat_idx = cp.arange(iSize)
     offsets = flat_idx - cp.take(iStart, wallLoc[0])
     mapped_idx = cp.take(wallIdx, wallLoc[0]) + offsets
 
     i = fullIdx[mapped_idx]
-    output[i,0,wallLoc[1]] = False
+    output[i,4,wallLoc[1]] = False
+
+    noneIdx = idx[cp.argwhere(mask)] - 1
+    i = cp.setdiff1d(cp.setdiff1d(fullIdx,i,True),noneIdx,True)
+
+    moveMask = ~output[i,peiceLoc[0]]
+    output[i,2] &= moveMask
+    output[i,3] &= moveMask
+    output[i,peiceLoc[0]] &= False
+    output[i,peiceLoc[0],peiceLoc[2]] = True
+    
+    return (idx,output)
 
 
                 
@@ -247,8 +257,8 @@ p3 = cp.array((False,True,False,False, False,False,False,False, False,False,Fals
 p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
 
 walls = cp.array((walls,walls,walls,walls))
-p1 = cp.array((p1,p1,p1,p1))
-p2 = cp.array((p2,p2,p2,p2))
+p1 = cp.array((p1,empty,empty,p1))
+p2 = cp.array((p2,empty,empty,p2))
 p3 = cp.array((p3,p3,p3,p3))
 p4 = cp.array((p4,p4,p4,p4))
 
