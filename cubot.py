@@ -197,7 +197,7 @@ def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4:
 def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4: cp.ndarray, moves: cp.ndarray, p1Turn: bool):
     global empty
     size = p1.shape[0]
-
+    
     peiceLoc = cp.argwhere(moves[:2])
     peiceLoc = peiceLoc[cp.argsort(peiceLoc.T[1])].T
     inversePeiceLoc = cp.setdiff1d(cp.arange(size),peiceLoc[1])
@@ -206,13 +206,36 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     wallLoc = wallLoc[cp.argsort(wallLoc.T[0])].T
     tLoc = cp.sort(cp.concatenate((peiceLoc[1],wallLoc[0],inversePeiceLoc)))
 
-    wallAmounts = cp.zeros(size,cp.int_)    if wallLoc.size == 0 else cp.bincount(wallLoc[0],minlength=size)
-    peiceAmounts = cp.zeros(size,cp.int_) if peiceLoc.size == 0 else cp.bincount(peiceLoc[0],minlength=size)
-    noneAmounts = cp.zeros(size,cp.int_) if inversePeiceLoc.size == 0 else cp.bincount(inversePeiceLoc,minlength=size)
-    totalAmounts = wallAmounts + peiceAmounts + noneAmounts
+    output = cp.reshape(cp.hstack((walls[tLoc],p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc])),(tLoc.size,5,16))
+    # print(wallLoc)
 
-    output = cp.reshape(cp.hstack((walls[tLoc],p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc])),(tLoc.size,5,4,4))
-    print(output)
+    wallAmounts =  cp.bincount(wallLoc[0],minlength=size)
+    peiceAmounts = cp.bincount(peiceLoc[1],minlength=size)
+    totalAmounts = wallAmounts + peiceAmounts
+    cp.putmask(totalAmounts,totalAmounts == 0,1)
+
+    idx = cp.cumsum(totalAmounts)
+    
+    fullIdx = cp.arange(idx[-1])
+    wallIdx = idx - wallAmounts
+    
+    iStart = cp.roll(cp.cumsum(wallAmounts),1)
+    iStart[0] = 0
+    iSize = cp.sum(wallAmounts).item()
+    i = cp.ndarray(iSize)
+
+    flat_idx = cp.arange(iSize)
+    offsets = flat_idx - cp.take(iStart, wallLoc[0])
+    mapped_idx = cp.take(wallIdx, wallLoc[0]) + offsets
+
+    i = fullIdx[mapped_idx]
+    output[i,0,wallLoc[1]] = False
+
+
+                
+
+    
+    
     
 
 
@@ -233,7 +256,7 @@ p4 = cp.array((p4,p4,p4,p4))
 
 moves = getMoves(walls,p1,p2,p3,p4, True)
 #moves = cp.reshape(moves,(-1,3,4,4))
-print (moves)
+#print (moves)
 
 # score = getScore(walls,p1,p2,p3,p4, True)
 # print(score)
