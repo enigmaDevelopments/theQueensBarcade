@@ -233,9 +233,11 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     noneIdx = idx[cp.argwhere(mask)] - 1
     i = cp.setdiff1d(cp.setdiff1d(fullIdx,i,True),noneIdx,True)
 
+    if not p1Turn:
+        peiceLoc[0] += 2
     moveMask = ~output[i,peiceLoc[0]]
-    output[i,2] &= moveMask
-    output[i,3] &= moveMask
+    output[i,2 if p1Turn else 0] &= moveMask
+    output[i,3 if p1Turn else 1] &= moveMask
     output[i,peiceLoc[0]] &= False
     output[i,peiceLoc[0],peiceLoc[2]] = True
     
