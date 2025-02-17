@@ -145,12 +145,12 @@ directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 def getScore(gameStates: cp.ndarray, p1Turn: bool):
     global surrounding
     shape = gameStates.shape
-    nears = []
-    for p in gameStates[:-1]:
-        idx = cp.argwhere(p).T
-        merged = cp.full(shape[1],cp.int8(16))
-        merged[idx[0]] = idx[1]
-        nears.append(surrounding[merged])
+
+    i = cp.arange(4)
+    idx = cp.argwhere(gameStates[i]).T
+    merged = cp.full((4,shape[1]),cp.int8(16))
+    merged[idx[0],idx[1]] = idx[2]
+    nears = (surrounding[merged])
 
     player1 = (nears[0]|nears[1]) & ~(gameStates[0]|gameStates[1]) & gameStates[4]
     player2 = (nears[2]|nears[3]) & ~(gameStates[2]|gameStates[3]) & gameStates[4]
@@ -174,21 +174,17 @@ def getMoves(gameStates: cp.ndarray, p1Turn: bool):
     global edges
     global directions
 
-    player = gameStates[0 if p1Turn else 2] + (gameStates[1 if p1Turn else 3] * cp.int8(2))
+    player = cp.tile(gameStates[0 if p1Turn else 2] + (gameStates[1 if p1Turn else 3] * cp.int8(2)), (8, 1, 1))
     wall = cp.array((gameStates[4] & ~(gameStates[2 if p1Turn else 0]|gameStates[3 if p1Turn else 1]), gameStates[4] & ~(gameStates[0]|gameStates[1]|gameStates[2]|gameStates[3])))
-    
-
     moves = cp.zeros(cp.shape(gameStates[0]),cp.int8)
 
-    for i in cp.arange(8):
-        pos = player.copy()
-        block = wall & edges[i]
-
-        for _ in cp.arange(3):
-            pos = cp.roll(pos,directions[i])
-            moves += pos * block[0]
-            pos *= block[1]
-    return cp.array(((moves&1), (moves&2),wall[1]),cp.bool_)
+    block = wall[:,None, :, :] & edges[None,:,None, :]
+    for _ in range(3):
+        for i in cp.arange(8):
+            player[i] = cp.roll(player[i],directions[i])
+        moves += cp.sum(player * block[0],0)
+        player *= block[1]
+    return cp.array(((moves&1),(moves&2),wall[1]),cp.bool_)
 
 
 def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
@@ -264,7 +260,7 @@ p4 = cp.array((p4,p4,p4,p4))
 gameStates = cp.array((p1,p2,p3,p4,walls))
 
 moves = getMoves(gameStates, True)
-#moves = cp.reshape(moves,(-1,3,4,4))
+#moves = cp.reshape(moves,(3,-1,4,4))
 #print (moves)
 
 score = getScore(gameStates, True)
