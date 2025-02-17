@@ -142,18 +142,18 @@ surrounding = cp.array((
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
-def getScore(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p4: cp.ndarray, p1Turn: bool):
+def getScore(gameStates: cp.ndarray, p1Turn: bool):
     global surrounding
-    shape = p1.shape
+    shape = gameStates.shape
     nears = []
-    for p in (p1,p2,p3,p4):
+    for p in gameStates[:-1]:
         idx = cp.argwhere(p).T
-        merged = cp.full(shape[0],cp.int8(16))
+        merged = cp.full(shape[1],cp.int8(16))
         merged[idx[0]] = idx[1]
         nears.append(surrounding[merged])
 
-    player1 = (nears[0]|nears[1]) & ~(p1|p2) & walls
-    player2 = (nears[2]|nears[3]) & ~(p3|p4) & walls
+    player1 = (nears[0]|nears[1]) & ~(gameStates[0]|gameStates[1]) & gameStates[4]
+    player2 = (nears[2]|nears[3]) & ~(gameStates[2]|gameStates[3]) & gameStates[4]
 
     p1Sum = cp.sum(player1&~player2,1,cp.float16)
     p2Sum = cp.sum(player2&~player1,1,cp.float16)
@@ -170,18 +170,15 @@ def getScore(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray, p3: cp.ndarray, p
 
 
 
-def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4: cp.ndarray, p1Turn: bool):
+def getMoves(gameStates: cp.ndarray, p1Turn: bool):
     global edges
     global directions
 
-    if p1Turn:
-        player = (p1 * cp.int8(2)) + (p2 * cp.int8(4))
-        wall = cp.array((walls & ~(p3|p4), walls & ~(p1|p2|p3|p4)))
-    else:
-        player = (p3 * cp.int8(2)) + (p4 * cp.int8(4))
-        wall = cp.array((walls & ~(p1|p2), walls & ~(p1|p2|p3|p4)))
+    player = gameStates[0 if p1Turn else 2] + (gameStates[1 if p1Turn else 3] * cp.int8(2))
+    wall = cp.array((gameStates[4] & ~(gameStates[2 if p1Turn else 0]|gameStates[3 if p1Turn else 1]), gameStates[4] & ~(gameStates[0]|gameStates[1]|gameStates[2]|gameStates[3])))
+    
 
-    moves = cp.zeros(cp.shape(walls),cp.int8)
+    moves = cp.zeros(cp.shape(gameStates[0]),cp.int8)
 
     for i in cp.arange(8):
         pos = player.copy()
@@ -191,12 +188,12 @@ def getMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4:
             pos = cp.roll(pos,directions[i])
             moves += pos * block[0]
             pos *= block[1]
-    return cp.array(((moves&2), (moves&4),wall[1]),cp.bool_)
+    return cp.array(((moves&1), (moves&2),wall[1]),cp.bool_)
 
 
-def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4: cp.ndarray, moves: cp.ndarray, p1Turn: bool):
+def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     global empty
-    size = p1.shape[0]
+    size = gameStates.shape[1]
     
     peiceLoc = cp.argwhere(moves[:2])
     peiceLoc = peiceLoc[cp.argsort(peiceLoc.T[1])].T
@@ -206,7 +203,7 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     wallLoc = wallLoc[cp.argsort(wallLoc.T[0])].T
     tLoc = cp.sort(cp.concatenate((peiceLoc[1],wallLoc[0],inversePeiceLoc)))
 
-    output = cp.reshape(cp.hstack((p1[tLoc],p2[tLoc],p3[tLoc],p4[tLoc],walls[tLoc])),(tLoc.size,5,16))
+    output = cp.transpose(gameStates,(1,0,2))[tLoc]
 
     wallAmounts =  cp.bincount(wallLoc[0],minlength=size)
     peiceAmounts = cp.bincount(peiceLoc[1],minlength=size)
@@ -236,12 +233,12 @@ def makeMoves(walls: cp.ndarray, p1: cp.ndarray,p2: cp.ndarray,p3: cp.ndarray,p4
     if not p1Turn:
         peiceLoc[0] += 2
     moveMask = ~output[i,peiceLoc[0]]
-    output[i,2 if p1Turn else 0] &= moveMask
+    output[i,2 if p1Turn else 1] &= moveMask
     output[i,3 if p1Turn else 1] &= moveMask
     output[i,peiceLoc[0]] &= False
     output[i,peiceLoc[0],peiceLoc[2]] = True
     
-    return (idx,output)
+    return (idx,cp.transpose(output,(1,0,2)))
 
 
                 
@@ -264,13 +261,13 @@ p2 = cp.array((p2,empty,empty,p2))
 p3 = cp.array((p3,p3,p3,p3))
 p4 = cp.array((p4,p4,p4,p4))
 
+gameStates = cp.array((p1,p2,p3,p4,walls))
 
-
-moves = getMoves(walls,p1,p2,p3,p4, True)
+moves = getMoves(gameStates, True)
 #moves = cp.reshape(moves,(-1,3,4,4))
 #print (moves)
 
-# score = getScore(walls,p1,p2,p3,p4, True)
-# print(score)
+score = getScore(gameStates, True)
+print(score)
 
-makeMoves(walls, p1, p2, p3, p4, moves, True)
+idx, state = makeMoves(gameStates, moves, True)
