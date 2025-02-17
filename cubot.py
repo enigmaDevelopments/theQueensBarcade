@@ -201,7 +201,7 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     wallLoc = cp.argwhere(moves[2])
     wallLoc = wallLoc[cp.argsort(wallLoc.T[0])].T
     tLoc = cp.sort(cp.concatenate((peiceLoc[1],wallLoc[0],inversePeiceLoc)))
-
+    #print(tLoc)
     output = cp.transpose(gameStates,(1,0,2))[tLoc]
 
     wallAmounts =  cp.bincount(wallLoc[0],minlength=size)
@@ -219,11 +219,13 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     iSize = iStart[0].item()
     iStart[0] = 0
 
-    flat_idx = cp.arange(iSize)
-    offsets = flat_idx - cp.take(iStart, wallLoc[0])
-    mapped_idx = cp.take(wallIdx, wallLoc[0]) + offsets
+    flatIdx = cp.arange(iSize)
+    offsets = flatIdx - cp.take(iStart, wallLoc[0])
+    mappedIdx = cp.take(wallIdx, wallLoc[0]) + offsets
 
-    i = fullIdx[mapped_idx]
+    #print(mappedIdx.shape)
+
+    i = fullIdx[mappedIdx]
     output[i,4,wallLoc[1]] = False
 
     noneIdx = idx[cp.argwhere(mask)] - 1
@@ -236,11 +238,38 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     output[i,3 if p1Turn else 1] &= moveMask
     output[i,peiceLoc[0]] &= False
     output[i,peiceLoc[0],peiceLoc[2]] = True
+
+    offsets = cp.zeros_like(idx)
+    offsets[1:] = idx[:-1]  # Starting indices for each group
+    groupIds = cp.searchsorted(offsets, fullIdx, side='right') - 1
+    idxMap = fullIdx - offsets[groupIds]
     
-    return (idx,cp.transpose(output,(1,0,2)))
+    return (cp.array((tLoc,idxMap)),cp.transpose(output,(1,0,2)))
 
-
-                
+def minMax(gameStates :cp.ndarray):
+    p1Turn = False
+    idxs = []
+    for _ in range(6):
+        idx,gameStates = makeMoves(gameStates,getMoves(gameStates,p1Turn),p1Turn)
+        idxs.insert(0,idx)
+        p1Turn = not p1Turn
+    scores = getScore(gameStates,True)
+    for i, j  in idxs:
+        r = cp.max(i).item()
+        c = cp.max(j).item()
+        k = cp.arange(i.size)
+        oldScores = +scores
+        if p1Turn:
+            partitioned = cp.full((r+1,c+1),200)
+            partitioned[i, j] = scores[k]
+            scores = cp.min(partitioned,1)
+        else:
+            partitioned = cp.full((r+1,c+1),-200)
+            partitioned[i, j] = scores[k]
+            scores = cp.max(partitioned,1) 
+        p1Turn = not p1Turn 
+    return cp.random.choice(cp.ravel(cp.argwhere(scores.item() == oldScores)),1).item()
+        
 
     
     
@@ -254,19 +283,21 @@ p2 = cp.array((False,False,False,False, False,False,False,False, False,False,Fal
 p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
 p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
 
-walls = cp.array((walls,walls,walls,walls))
-p1 = cp.array((p1,empty,empty,p1))
-p2 = cp.array((p2,empty,empty,p2))
-p3 = cp.array((p3,p3,p3,p3))
-p4 = cp.array((p4,p4,p4,p4))
+# walls = cp.array((walls,walls,walls,walls))
+# p1 = cp.array((p1,empty,empty,p1))
+# p2 = cp.array((p2,empty,empty,p2))
+# p3 = cp.array((p3,p3,p3,p3))
+# p4 = cp.array((p4,p4,p4,p4))
 
-gameStates = cp.array((p1,p2,p3,p4,walls))
+gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
 
 moves = getMoves(gameStates, True)
 #moves = cp.reshape(moves,(3,-1,4,4))
 #print (moves)
 
 score = getScore(gameStates, True)
-print(score)
+#print(score)
 
 idx, state = makeMoves(gameStates, moves, True)
+
+print(minMax(gameStates))
