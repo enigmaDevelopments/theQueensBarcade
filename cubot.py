@@ -174,17 +174,20 @@ def getMoves(gameStates: cp.ndarray, p1Turn: bool):
     global edges
     global directions
 
-    player = cp.tile(gameStates[0 if p1Turn else 2] + (gameStates[1 if p1Turn else 3] * cp.int8(2)), (8, 1, 1))
+    player = cp.reshape(cp.tile(gameStates[0 if p1Turn else 2] + (gameStates[1 if p1Turn else 3] * cp.int8(2)), (8, 1, 1)),(8,-1))
     wall = cp.array((gameStates[4] & ~(gameStates[2 if p1Turn else 0]|gameStates[3 if p1Turn else 1]), gameStates[4] & ~(gameStates[0]|gameStates[1]|gameStates[2]|gameStates[3])))
-    moves = cp.zeros(cp.shape(gameStates[0]),cp.int8)
+    shape = player.shape
+    moves = cp.zeros(shape[1],cp.int8)
 
-    block = wall[:,None, :, :] & edges[None,:,None, :]
+    block = cp.reshape(wall[:,None, :, :] & edges[None,:,None, :],(2,8,-1))
+    i = cp.arange(8)[:, None]
+    j = (cp.tile(cp.arange(shape[1]),(8, 1)) - directions[:, None]) % shape[1]
+
     for _ in range(3):
-        for i in cp.arange(8):
-            player[i] = cp.roll(player[i],directions[i])
+        player = player[i,j]
         moves += cp.sum(player * block[0],0)
         player *= block[1]
-    return cp.array(((moves&1),(moves&2),wall[1]),cp.bool_)
+    return cp.array((cp.reshape(moves&1,(-1,16)),cp.reshape(moves&2,(-1,16)),wall[1]),cp.bool_)
 
 
 def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
