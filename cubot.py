@@ -244,7 +244,7 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     groupIds = cp.searchsorted(offsets, fullIdx, side='right') - 1
     idxMap = fullIdx - offsets[groupIds]
     
-    return (cp.array((tLoc,idxMap)),cp.transpose(output,(1,0,2)))
+    return (cp.array((tLoc,idxMap)).get(),cp.transpose(output,(1,0,2)))
 
 def minMax(gameStates :cp.ndarray):
     p1Turn = False
@@ -254,7 +254,10 @@ def minMax(gameStates :cp.ndarray):
         idxs.insert(0,idx)
         p1Turn = not p1Turn
     scores = getScore(gameStates,True)
-    for i, j  in idxs:
+    for idx in idxs:
+        idx = cp.asarray(idx)
+        i = idx[0]
+        j = idx[1]
         r = cp.max(i).item()
         c = cp.max(j).item()
         k = cp.arange(i.size)
@@ -272,8 +275,9 @@ def minMax(gameStates :cp.ndarray):
         
 
     
-    
-    
+def binSum(input :cp.ndarray):
+    masks = cp.array((0b1,0b10,0b100,0b1000,0b10000,0b100000,0b1000000,0b10000000,0b100000000,0b1000000000,0b10000000000,0b100000000000,0b1000000000000,0b10000000000000,0b100000000000000,0b1000000000000000))
+    return  cp.sum((input[..., None] & masks) > 0, axis=-1)    
 
 
 
