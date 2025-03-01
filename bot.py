@@ -1,11 +1,9 @@
-from functools import lru_cache
 from concurrent import futures
 from gameState import gameState
 from random import choice
 from multiprocessing import freeze_support
 
 
-@lru_cache
 def minMax(state : gameState, depth, alpha, beta):
   end = state.endingBoard()
   if end == 0:

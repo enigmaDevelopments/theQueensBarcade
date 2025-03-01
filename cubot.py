@@ -1,4 +1,6 @@
 import cupy as cp
+from gameState import gameState
+from multiprocessing import freeze_support
 
 edges = cp.array((
     (True,True,True,False,
@@ -234,7 +236,7 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
     if not p1Turn:
         peiceLoc[0] += 2
     moveMask = ~output[i,peiceLoc[0]]
-    output[i,2 if p1Turn else 1] &= moveMask
+    output[i,2 if p1Turn else 0] &= moveMask
     output[i,3 if p1Turn else 1] &= moveMask
     output[i,peiceLoc[0]] &= False
     output[i,peiceLoc[0],peiceLoc[2]] = True
@@ -249,7 +251,7 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
 def minMax(gameStates :cp.ndarray):
     p1Turn = False
     idxs = []
-    for _ in range(6):
+    for _ in range(5):
         idx,gameStates = makeMoves(gameStates,getMoves(gameStates,p1Turn),p1Turn)
         idxs.insert(0,idx)
         p1Turn = not p1Turn
@@ -274,34 +276,50 @@ def minMax(gameStates :cp.ndarray):
     return cp.random.choice(cp.ravel(cp.argwhere(scores.item() == oldScores)),1).item()
         
 
+def ai(state: gameState):
+    global empty
+
+    walls = empty.copy()
+    for i in state.wallLocations: 
+        walls[i] = True
+    walls = ~walls
+    convertedState = cp.array((empty,empty,empty,empty,walls),cp.bool_)
+    for i,j in enumerate(state.peiceLoactions):
+        if j == 16:
+            continue
+        convertedState[i,j] = True
+    convertedState = convertedState[:, None, :]
+
+    return state.vaildMoves()[minMax(convertedState)]
     
 def binSum(input :cp.ndarray):
     masks = cp.array((0b1,0b10,0b100,0b1000,0b10000,0b100000,0b1000000,0b10000000,0b100000000,0b1000000000,0b10000000000,0b100000000000,0b1000000000000,0b10000000000000,0b100000000000000,0b1000000000000000))
     return  cp.sum((input[..., None] & masks) > 0, axis=-1)    
 
+if __name__ == "__main__":
+    freeze_support()
 
+    walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
+    p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
+    p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
+    p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
+    p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
 
-walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
-p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
-p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
-p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
-p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
+    # walls = cp.array((walls,walls,walls,walls))
+    # p1 = cp.array((p1,empty,empty,p1))
+    # p2 = cp.array((p2,empty,empty,p2))
+    # p3 = cp.array((p3,p3,p3,p3))
+    # p4 = cp.array((p4,p4,p4,p4))
 
-# walls = cp.array((walls,walls,walls,walls))
-# p1 = cp.array((p1,empty,empty,p1))
-# p2 = cp.array((p2,empty,empty,p2))
-# p3 = cp.array((p3,p3,p3,p3))
-# p4 = cp.array((p4,p4,p4,p4))
+    gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
 
-gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
+    moves = getMoves(gameStates, True)
+    #moves = cp.reshape(moves,(3,-1,4,4))
+    #print (moves)
 
-moves = getMoves(gameStates, True)
-#moves = cp.reshape(moves,(3,-1,4,4))
-#print (moves)
+    score = getScore(gameStates, True)
+    #print(score)
 
-score = getScore(gameStates, True)
-#print(score)
+    idx, state = makeMoves(gameStates, moves, True)
 
-idx, state = makeMoves(gameStates, moves, True)
-
-print(minMax(gameStates))
+    print(minMax(gameStates))
