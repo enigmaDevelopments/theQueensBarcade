@@ -5,16 +5,15 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
     hiddenimports=['bot.py','game.py','gameState.py'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=0,
-    icon='queen p1.png'
+    optimize=0
 )
+a.datas += [("queen p1.png","queen p1.png","DATA"),("queen p2.png","queen p2.png","DATA"),("white.png","white.png","DATA"),("wall.png","wall.png","DATA")]
 pyz = PYZ(a.pure)
 
 exe = EXE(

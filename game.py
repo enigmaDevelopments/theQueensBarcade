@@ -2,17 +2,27 @@ from threading import Thread
 import tkinter as tk
 from tkinter import messagebox
 from gameState import gameState
-from bot import ai
+from multibot import ai
 from multiprocessing import freeze_support
+import os
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class game :
   def __init__(self, botOn, window): 
     self.window = window
     self.window.title("Queens barcade")
     self.window.geometry("152x152")
-    self.peice = (tk.PhotoImage(file="queen p1.png"),tk.PhotoImage(file="queen p2.png"))
-    self.white = tk.PhotoImage(file="white.png")
-    self.wall = tk.PhotoImage(file="wall.png")
+    self.peice = (tk.PhotoImage(file=resource_path("queen p1.png")),tk.PhotoImage(file=resource_path("queen p2.png")))
+    self.white = tk.PhotoImage(file=resource_path("white.png"))
+    self.wall = tk.PhotoImage(file=resource_path("wall.png"))
     self.state = gameState((set(),(13,14,0,3),True))
     self.botOn = botOn
     self.space = []
