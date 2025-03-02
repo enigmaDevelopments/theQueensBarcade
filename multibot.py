@@ -10,7 +10,7 @@ def minMax(state : gameState, depth, alpha, beta):
     return 1/(depth+2)
   if end != None:
     return end + ((depth*1000) + state.score() if end < 0 else -depth)
-  if depth == 8:
+  if depth == 7:
     return state.score()
   if state.p1Turn:
     best = 2000000
@@ -47,7 +47,7 @@ def ai(state):
   games = ((gameState(state.move(move)),move) for move in state.vaildMoves())
   with futures.ProcessPoolExecutor() as executer:
     values = [executer.submit(thread, node) for node in games]
-    for future in futures.as_completed(values):
+    for future in futures.as_completed(values, timeout=None):
       value = future.result()
       if value[0] > best:
         best = value[0]
