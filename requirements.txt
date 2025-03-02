@@ -1,2 +1,2 @@
-cupy
+cupy-cuda12x
 pyinstaller

@@ -1,9 +1,13 @@
 import tkinter as tk
 from game import game
 from multiprocessing import freeze_support
+from sys import argv
 
+botType = 0
+if 1 < len(argv):
+  botType = argv[1]
 
-
+print(botTypepyt)
 
 
 def startGame(botOn) :
@@ -20,7 +24,7 @@ def startGame(botOn) :
 
   again = "yes"
   while (again == "yes"):
-    game(botOn, window)
+    game(botOn, window, botType)
     again = tk.messagebox.askquestion('Game end', 'Play again?')
 
   elements()
