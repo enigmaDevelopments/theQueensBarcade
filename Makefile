@@ -1,6 +1,6 @@
 all: install buildAll
 
-install:
+install: requirements.txt
 	pip install -r requirements.txt
 	pip install --upgrade -r requirements.txt
 
@@ -12,15 +12,15 @@ buildAll:
 	make buildCuda 
 	make clean
 buildMain:
-	echo 0 > botType.txt
+	echo def ai(input): from bot import ai as a; return a(input) > botType.py
 	make build
 	if exist "dist\TheQueensBarcade.exe" ren "dist\TheQueensBarcade.exe" "The Queens Barcade.exe"
 buildThreaded:
-	echo 1 > botType.txt
+	echo def ai(input): from multibot import ai as a; return a(input) > botType.py
 	make build
 	if exist "dist\TheQueensBarcade.exe" ren "dist\TheQueensBarcade.exe" "The Queens Barcade Threaded.exe"
 buildCuda:
-	echo 2 > botType.txt
+	echo def ai(input): from cubot import ai as a; return a(input) > botType.py
 	make build
 	if exist "dist\TheQueensBarcade.exe" ren "dist\TheQueensBarcade.exe" "The Queens Barcade Cuda.exe"
 build:
@@ -28,3 +28,5 @@ build:
 
 clean:
 	if exist build rd /s /q build
+cleanAll: clean
+	if exist dist rd /s /q dist

@@ -1,8 +1,7 @@
 import tkinter as tk
-import game
+from game import game
 from multiprocessing import freeze_support
 
-botType = open(game.resource_path("botType.txt")).read(1)
 
 def startGame(botOn) :
   global window
@@ -18,7 +17,7 @@ def startGame(botOn) :
 
   again = "yes"
   while (again == "yes"):
-    game.game(botOn, window, botType)
+    game(botOn, window)
     again = tk.messagebox.askquestion('Game end', 'Play again?')
 
   elements()

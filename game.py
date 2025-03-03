@@ -5,6 +5,7 @@ from gameState import gameState
 from multiprocessing import freeze_support
 import os
 import sys
+from botType import ai
 
 def resource_path(relative_path):
     try:
@@ -15,7 +16,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class game :
-  def __init__(self, botOn, window,botType): 
+  def __init__(self, botOn, window): 
     
     self.window = window
     self.window.title("Queens barcade")
@@ -25,7 +26,6 @@ class game :
     self.wall = tk.PhotoImage(file=resource_path("wall.png"))
     self.state = gameState((set(),(13,14,0,3),True))
     self.botOn = botOn
-    self.botType = botType
     self.space = []
     self.processing = False
     self.thread = None
@@ -74,16 +74,7 @@ class game :
     return False
   
   def process(self):
-    if self.botType == '0':
-      from bot import ai
-      move = ai(self.state)
-    elif self.botType == '1':
-      from multibot import ai
-      move = ai(self.state)
-    else:
-      from cubot import ai
-      move = ai(self.state)
-
+    move = ai(self.state)
     self.processing = False
     self.click(move)
 
