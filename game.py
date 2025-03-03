@@ -74,10 +74,10 @@ class game :
     return False
   
   def process(self):
-    if self.botType == 0:
+    if self.botType == '0':
       from bot import ai
       move = ai(self.state)
-    elif self.botType == 1:
+    elif self.botType == '1':
       from multibot import ai
       move = ai(self.state)
     else:

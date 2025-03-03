@@ -13,7 +13,7 @@ a = Analysis(
     noarchive=False,
     optimize=0
 )
-a.datas += [("queen p1.png","queen p1.png","DATA"),("queen p2.png","queen p2.png","DATA"),("white.png","white.png","DATA"),("wall.png","wall.png","DATA")]
+a.datas += [("queen p1.png","queen p1.png","DATA"),("queen p2.png","queen p2.png","DATA"),("white.png","white.png","DATA"),("wall.png","wall.png","DATA"),("botType.txt","botType.txt","DATA")]
 pyz = PYZ(a.pure)
 
 exe = EXE(
