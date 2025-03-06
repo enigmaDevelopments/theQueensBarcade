@@ -34,6 +34,7 @@ class gameState:
         for i in peices:
             if i == 16:
                 continue  
+            localMoves = []
             for j in toAdd:
                 h = i + j
                 cont = True
@@ -43,12 +44,14 @@ class gameState:
                         cont = False
                     elif (self.p1Turn and h in self.peiceLoactions[2:]) or (not self.p1Turn and h in self.peiceLoactions[:2]) :
                         cont2 = False
-                        moves.append((i,h))
+                        localMoves.append(h)
                     elif h in self.peiceLoactions :
                         cont = False
                     else:
-                        moves.append((i,h))
+                        localMoves.append(h)
                     h+=j
+            for l in sorted(localMoves):
+                moves.append((i,l))
         return tuple(moves) + tuple(set(range(16)) - self.wallLocations-set(self.peiceLoactions))
     
     def score(self):

@@ -252,17 +252,17 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
 
 def printState(gameStates):
     for j in gameStates.get():
-                for k in j:
-                    k = k.reshape(4,4)
-                    for l in k:
-                        for m in l:
-                            if m:
-                                print("X", end="")
-                            else:
-                                print("#", end="")
-                        print()
-                    print()
-                print('--------\n\n')
+        for k in j:
+            k = k.reshape(4,4)
+            for l in k:
+                for m in l:
+                    if m:
+                        print("X", end="")
+                    else:
+                        print("#", end="")
+                print()
+            print()
+        print('--------\n\n')
 
 def minMax(gameStates :cp.ndarray):
     p1Turn = False
@@ -288,8 +288,7 @@ def minMax(gameStates :cp.ndarray):
         else:
             partitioned = cp.full((r+1,c+1),-200.0)
             partitioned[i, j] = scores[k]
-            scores = cp.max(partitioned,1) 
-    print(p1Turn)
+            scores = cp.max(partitioned,1)
     return cp.random.choice(cp.ravel(cp.argwhere(scores.item() == oldScores)),1).item()
         
 
@@ -339,4 +338,5 @@ if __name__ == "__main__":
 
     # idx, state = makeMoves(gameStates, moves, True)
 
-    print(minMax(gameStates))
+    # print(minMax(gameStates))
+    printState(makeMoves(gameStates,getMoves(gameStates,False),False)[1])
