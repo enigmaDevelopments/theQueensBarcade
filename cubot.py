@@ -236,9 +236,8 @@ def makeMoves(gameStates: cp.ndarray,moves: cp.ndarray, p1Turn: bool):
 
     if not p1Turn:
         peiceLoc[0] += 2
-    moveMask = ~output[i,peiceLoc[0]]
-    output[i,2 if p1Turn else 0] &= moveMask
-    output[i,3 if p1Turn else 1] &= moveMask
+    output[i,2 if p1Turn else 0,peiceLoc[2]]  &= False
+    output[i,3 if p1Turn else 1,peiceLoc[2]] = False
     output[i,peiceLoc[0]] &= False
     output[i,peiceLoc[0],peiceLoc[2]] = True
 
@@ -338,5 +337,5 @@ if __name__ == "__main__":
 
     # idx, state = makeMoves(gameStates, moves, True)
 
-    # print(minMax(gameStates))
-    printState(makeMoves(gameStates,getMoves(gameStates,False),False)[1])
+    print(minMax(gameStates))
+    # printState(makeMoves(gameStates,getMoves(gameStates,False),False)[1])
