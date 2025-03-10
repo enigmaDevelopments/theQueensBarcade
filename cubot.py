@@ -159,6 +159,8 @@ def getScore(gameStates: cp.ndarray, p1Turn: bool):
 
     p1Sum = cp.sum(player1&~player2,1,cp.float16)
     p2Sum = cp.sum(player2&~player1,1,cp.float16)
+    p1NotGameOver = cp.sum(player1,1,cp.bool_)
+    p2NotGameOver = cp.sum(player2,1,cp.bool_)
     p1NotZero = p1Sum.astype(bool)
     p2NotZero = p2Sum.astype(bool)
     p1Sum += cp.float16(p1Turn * .5)
@@ -166,7 +168,7 @@ def getScore(gameStates: cp.ndarray, p1Turn: bool):
     bSum = cp.sum(player1&player2,1,cp.float16)
     total = p2Sum - p1Sum
 
-    return cp.where(p1NotZero, cp.where(p2NotZero, cp.where(cp.fabs(total)<bSum,0,total), -100), cp.where(p2NotZero,100,0))
+    return cp.where(p1NotGameOver, cp.where(p2NotGameOver, cp.where(p1NotZero, cp.where(p2NotZero, cp.where(cp.fabs(total)<bSum,0,total), -100), cp.where(p2NotZero,100,0)),-200),cp.where(p2NotGameOver,200,0))
 
     
 
