@@ -3,144 +3,39 @@ from gameState import gameState
 from multiprocessing import freeze_support
 
 edges = cp.array((
-    (True,True,True,False,
-     True,True,True,False,
-     True,True,True,False,
-     False,False,False,False),
-
-    (True,True,True,True,
-     True,True,True,True,
-     True,True,True,True,
-     False,False,False,False),
-
-    (False,True,True,True,
-     False,True,True,True,
-     False,True,True,True,
-     False,False,False,False),
-
-    (True,True,True,False,
-     True,True,True,False,
-     True,True,True,False,
-     True,True,True,False),
-     
-    (False,True,True,True,
-     False,True,True,True,
-     False,True,True,True,
-     False,True,True,True),
-
-    (False,False,False,False,
-     True,True,True,False,
-     True,True,True,False,
-     True,True,True,False),
-
-    (False,False,False,False,
-     True,True,True,True,
-     True,True,True,True,
-     True,True,True,True),
-
-    (False,False,False,False,
-     False,True,True,True,
-     False,True,True,True,
-     False,True,True,True),
-))
-
-empty = cp.array((
-    False,False,False,False,
-     False,False,False,False,
-     False,False,False,False,
-     False,False,False,False
-))
+    0b1110111011100000,
+    0b1111111111110000,
+    0b0111011101110000,
+    0b1110111011101110,
+    0b0111011101110111,
+    0b0000111011101110,
+    0b0000111111111111,
+    0b0000011101110111
+    ),cp.uint16)
 
 surrounding = cp.array((
-    (False,True,False,False,
-     True,True,False,False,
-     False,False,False,False,
-     False,False,False,False),
+    0b0100110000000000,
+    0b1010111000000000,
+    0b0101011100000000,
+    0b0010001100000000,
 
-    (True,False,True,False,
-     True,True,True,False,
-     False,False,False,False,
-     False,False,False,False),
+    0b1100010011000000,
+    0b1110101011100000,
+    0b0111010101110000,
+    0b0011001000110000,
 
-    (False,True,False,True,
-     False,True,True,True,
-     False,False,False,False,
-     False,False,False,False),
+    0b0000110001001100,
+    0b0000111010101110,
+    0b0000011101010111,
+    0b0000001100100011,
 
-    (False,False,True,False,
-     False,False,True,True,
-     False,False,False,False,
-     False,False,False,False),
-
-
-    (True,True,False,False,
-     False,True,False,False,
-     True,True,False,False,
-     False,False,False,False),
-
-    (True,True,True,False,
-     True,False,True,False,
-     True,True,True,False,
-     False,False,False,False),
-
-    (False,True,True,True,
-     False,True,False,True,
-     False,True,True,True,
-     False,False,False,False),
-
-    (False,False,True,True,
-     False,False,True,False,
-     False,False,True,True,
-     False,False,False,False),
-
-
-    (False,False,False,False,
-     True,True,False,False,
-     False,True,False,False,
-     True,True,False,False),
-      
-    (False,False,False,False,
-     True,True,True,False,
-     True,False,True,False,
-     True,True,True,False),
-
-    (False,False,False,False,
-     False,True,True,True,
-     False,True,False,True,
-     False,True,True,True),
-
-    (False,False,False,False,
-     False,False,True,True,
-     False,False,True,False,
-     False,False,True,True),
-
-
-    (False,False,False,False,
-     False,False,False,False,
-     True,True,False,False,
-     False,True,False,False),
-
-    (False,False,False,False,
-     False,False,False,False,
-     True,True,True,False,
-     True,False,True,False),
-
-    (False,False,False,False,
-     False,False,False,False,
-     False,True,True,True,
-     False,True,False,True),
-
-    (False,False,False,False,
-     False,False,False,False,
-     False,False,True,True,
-     False,False,True,False),
-
-
-     (False,False,False,False,
-     False,False,False,False,
-     False,False,False,False,
-     False,False,False,False)
-))
+    0b0000000011000100,
+    0b0000000011101010,
+    0b0000000001110101,
+    0b0000000000110010,
+    0b0000000000000000
+),cp.uint16)
+masks = cp.array((0b1,0b10,0b100,0b1000,0b10000,0b100000,0b1000000,0b10000000,0b100000000,0b1000000000,0b10000000000,0b100000000000,0b1000000000000,0b10000000000000,0b100000000000000,0b1000000000000000))
 
 directions = cp.array((-5,-4,-3,-1,1,3,4,5))
 
@@ -310,34 +205,34 @@ def ai(state: gameState):
     return state.vaildMoves()[minMax(convertedState)]
     
 def binSum(input :cp.ndarray):
-    masks = cp.array((0b1,0b10,0b100,0b1000,0b10000,0b100000,0b1000000,0b10000000,0b100000000,0b1000000000,0b10000000000,0b100000000000,0b1000000000000,0b10000000000000,0b100000000000000,0b1000000000000000))
+    global masks
     return  cp.sum((input[..., None] & masks) > 0, axis=-1)    
 
 if __name__ == "__main__":
     freeze_support()
 
-    walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
-    p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
-    p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
-    p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
-    p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
+    # walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
+    # p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
+    # p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
+    # p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
+    # p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
 
-    # walls = cp.array((walls,walls,walls,walls))
-    # p1 = cp.array((p1,empty,empty,p1))
-    # p2 = cp.array((p2,empty,empty,p2))
-    # p3 = cp.array((p3,p3,p3,p3))
-    # p4 = cp.array((p4,p4,p4,p4))
+    # # walls = cp.array((walls,walls,walls,walls))
+    # # p1 = cp.array((p1,empty,empty,p1))
+    # # p2 = cp.array((p2,empty,empty,p2))
+    # # p3 = cp.array((p3,p3,p3,p3))
+    # # p4 = cp.array((p4,p4,p4,p4))
 
-    gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
+    # gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
 
-    # moves = getMoves(gameStates, True)
-    #moves = cp.reshape(moves,(3,-1,4,4))
-    #print (moves)
+    # # moves = getMoves(gameStates, True)
+    # #moves = cp.reshape(moves,(3,-1,4,4))
+    # #print (moves)
 
-    # score = getScore(gameStates, True)
-    #print(score)
+    # # score = getScore(gameStates, True)
+    # #print(score)
 
-    # idx, state = makeMoves(gameStates, moves, True)
+    # # idx, state = makeMoves(gameStates, moves, True)
 
-    print(minMax(gameStates))
-    # printState(makeMoves(gameStates,getMoves(gameStates,False),False)[1])
+    # print(minMax(gameStates))
+    # # printState(makeMoves(gameStates,getMoves(gameStates,False),False)[1])
