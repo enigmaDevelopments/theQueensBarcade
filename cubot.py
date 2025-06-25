@@ -161,7 +161,7 @@ def printState(gameStates):
         print('--------\n\n')
 
 def minMax(gameStates :cp.ndarray):
-    p1Turn = False
+    p1Turn = 0
     idxs = []
     for _ in range(5):
         idx,gameStates = makeMoves(gameStates,getMoves(gameStates,p1Turn),p1Turn)
@@ -211,19 +211,12 @@ def binSum(input :cp.ndarray):
 if __name__ == "__main__":
     freeze_support()
 
-    # walls = cp.array((False,True,True,True, True,True,True,True, True,False,True,True, True,True,True,True))
-    # p1 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, True,False,False,False))
-    # p2 = cp.array((False,False,False,False, False,False,False,False, False,False,False,False, False,False,False,True))
-    # p3 = cp.array((False,True,False,False, False,False,False,False, False,False,False,False, False,False,False,False))
-    # p4 = cp.array((False,False,True,False, False,False,False,False, False,False,False,False, False,False,False,False))
-
-    # # walls = cp.array((walls,walls,walls,walls))
-    # # p1 = cp.array((p1,empty,empty,p1))
-    # # p2 = cp.array((p2,empty,empty,p2))
-    # # p3 = cp.array((p3,p3,p3,p3))
-    # # p4 = cp.array((p4,p4,p4,p4))
-
-    # gameStates = cp.array((p1,p2,p3,p4,walls))[:, None, :]
+    walls = 0b0111111110111111
+    peices = 0x12ED
+    gameInfo = 0
+    peices = cp.array((peices,peices,peices,peices),cp.uint16)
+    walls = cp.array((walls,walls,walls,walls),cp.uint16)
+    gameInfo = cp.array((gameInfo,gameInfo,gameInfo,gameInfo),cp.uint8)
 
     # # moves = getMoves(gameStates, True)
     # #moves = cp.reshape(moves,(3,-1,4,4))
